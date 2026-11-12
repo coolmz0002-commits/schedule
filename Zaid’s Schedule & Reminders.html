@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zaid’s Schedule & Reminders</title>
+<style>
+:root{--bg1:#eef2ff;--bg2:#fdf2f8;--card:rgba(255,255,255,.75);--text:#1e1b4b;--muted:#6b7280;--accent:#6366f1;--accent2:#ec4899;--border:rgba(99,102,241,.2);--shadow:0 10px 30px rgba(99,102,241,.15);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#0f0c29;--bg2:#1e1146;--card:rgba(30,27,75,.65);--text:#eef2ff;--muted:#a5b4fc;--border:rgba(165,180,252,.2);--shadow:0 10px 30px rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{--bg1:#0f0c29;--bg2:#1e1146;--card:rgba(30,27,75,.65);--text:#eef2ff;--muted:#a5b4fc;--border:rgba(165,180,252,.2);--shadow:0 10px 30px rgba(0,0,0,.4)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2));overflow-x:hidden}
+.blob{position:fixed;border-radius:50%;filter:blur(60px);opacity:.45;z-index:0;animation:float 12s ease-in-out infinite}
+.b1{width:320px;height:320px;background:var(--accent);top:-80px;left:-80px}
+.b2{width:280px;height:280px;background:var(--accent2);bottom:-60px;right:-60px;animation-delay:-4s}
+.b3{width:200px;height:200px;background:#22d3ee;top:45%;left:60%;animation-delay:-8s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-50px) scale(1.15)}}
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:24px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;animation:drop .8s ease both}
+@keyframes drop{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:none}}
+h1{margin:0;font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);margin:4px 0 0}
+.clock{text-align:right}
+.clock b{display:block;font-size:1.8rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock span{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:1fr 1.4fr;gap:20px;margin-top:22px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:20px;padding:20px;box-shadow:var(--shadow);animation:rise .7s ease both}
+.card:nth-child(2){animation-delay:.15s}
+@keyframes rise{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+h2{margin:0 0 14px;font-size:1.15rem}
+label{display:block;font-size:.8rem;color:var(--muted);margin:10px 0 4px}
+input,select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1rem;font-family:inherit;transition:.25s}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(99,102,241,.2)}
+.row{display:flex;gap:10px}
+.row>div{flex:1}
+button{font-family:inherit;cursor:pointer;border:0;transition:transform .2s,box-shadow .2s}
+.add{width:100%;margin-top:16px;padding:13px;border-radius:14px;font-size:1rem;font-weight:600;color:#fff;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 8px 20px rgba(236,72,153,.3)}
+.add:hover{transform:translateY(-3px)}
+.add:active{transform:scale(.97)}
+.ring{display:flex;align-items:center;gap:16px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.ring svg{width:76px;height:76px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.ring .bg{stroke:var(--border)}
+.ring .fg{stroke:url(#g);stroke-dasharray:226;stroke-dashoffset:226;transition:stroke-dashoffset .8s ease}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{padding:7px 14px;border-radius:999px;background:transparent;color:var(--muted);border:1px solid var(--border);font-size:.85rem}
+.tab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tab:hover{transform:translateY(-2px)}
+.item{display:flex;align-items:center;gap:12px;padding:13px;margin-bottom:10px;border-radius:14px;background:var(--card);border:1px solid var(--border);border-left:5px solid var(--c);animation:slide .45s cubic-bezier(.2,.9,.3,1.2) both;transition:transform .2s}
+.item:hover{transform:translateX(6px)}
+@keyframes slide{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+.item.out{animation:gone .35s ease forwards}
+@keyframes gone{to{opacity:0;transform:translateX(80px) scale(.9)}}
+.item.done .t{text-decoration:line-through;opacity:.5}
+.chk{width:26px;height:26px;border-radius:50%;border:2px solid var(--c);background:transparent;color:#fff;font-size:.9rem;flex:none}
+.item.done .chk{background:var(--c)}
+.info{flex:1;min-width:0}
+.t{font-weight:600;overflow-wrap:anywhere}
+.m{font-size:.8rem;color:var(--muted);margin-top:2px}
+.late{color:#ef4444}
+.del{background:transparent;color:var(--muted);font-size:1.2rem;padding:4px 8px;border-radius:8px}
+.del:hover{color:#ef4444;transform:rotate(12deg) scale(1.2)}
+.empty{text-align:center;color:var(--muted);padding:30px 0}
+.empty i{display:block;font-style:normal;font-size:2.4rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.theme{background:var(--card);border:1px solid var(--border);border-radius:50%;width:42px;height:42px;font-size:1.2rem;margin-left:12px}
+.theme:hover{transform:rotate(30deg)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.show{display:flex;animation:fade .3s}
+@keyframes fade{from{opacity:0}}
+.box{background:var(--bg1);color:var(--text);border-radius:24px;padding:30px;text-align:center;max-width:360px;width:100%;border:2px solid var(--accent2);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+.bell{font-size:3.5rem;display:inline-block;animation:ring .6s ease-in-out infinite}
+@keyframes ring{0%,100%{transform:rotate(0)}25%{transform:rotate(20deg)}75%{transform:rotate(-20deg)}}
+.box h3{margin:10px 0 4px;font-size:1.4rem}
+.box .btns{display:flex;gap:10px;margin-top:20px}
+.box button{flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:.95rem}
+.snz{background:var(--card);color:var(--text);border:1px solid var(--border)!important}
+.ok{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translate(-50%,100px);background:var(--accent);color:#fff;padding:11px 20px;border-radius:999px;transition:.4s;z-index:60;box-shadow:var(--shadow)}
+.toast.show{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="wrap">
+  <header>
+    <div><h1>My Schedule</h1><p class="sub" id="greet">Plan your day, never miss a thing.</p></div>
+    <div style="display:flex;align-items:center"><div class="clock"><b id="time">--:--:-- --</b><span id="date"></span></div><button class="theme" id="theme" aria-label="Toggle theme">🌙</button></div>
+  </header>
+  <div class="grid">
+    <section class="card">
+      <h2>➕ New reminder</h2>
+      <label for="title">What do you need to do?</label>
+      <input id="title" placeholder="e.g. Python practice" maxlength="80">
+      <div class="row">
+        <div><label for="d">Date</label><input type="date" id="d"></div>
+        <div><label for="tm">Time</label><input type="time" id="tm"></div>
+      </div>
+      <label for="cat">Category</label>
+      <select id="cat">
+        <option value="#6366f1">📚 Study</option>
+        <option value="#ec4899">🎤 Personal</option>
+        <option value="#10b981">🏏 Sports</option>
+        <option value="#f59e0b">💼 Work</option>
+        <option value="#06b6d4">⭐ Other</option>
+      </select>
+      <button class="add" id="add">Set reminder</button>
+      <div class="ring">
+        <svg viewBox="0 0 80 80"><defs><linearGradient id="g"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs><circle class="bg" cx="40" cy="40" r="36"/><circle class="fg" id="fg" cx="40" cy="40" r="36"/></svg>
+        <div><b id="pct" style="font-size:1.5rem">0%</b><div class="m" id="pinfo">No tasks yet</div></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>📅 Your schedule</h2>
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-f="all">All</button><button class="tab" data-f="today">Today</button><button class="tab" data-f="up">Upcoming</button><button class="tab" data-f="done">Done</button>
+      </div>
+      <div id="list"></div>
+    </section>
+  </div>
+</div>
+<div class="modal" id="modal"><div class="box"><div class="bell">🔔</div><h3 id="mt">Reminder</h3><div class="m" id="mm"></div>
+<div class="btns"><button class="snz" id="snz">Snooze 5 min</button><button class="ok" id="ok">Done ✓</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+let tasks=[],filter='all',ringing=null;
+const KEY='zaid-schedule-v1';
+try{tasks=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){tasks=[]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(tasks))}catch(e){}}
+function pad(n){return String(n).padStart(2,'0')}
+function ymd(dt){return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())}
+function when(t){return new Date(t.date+'T'+t.time)}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function beep(){try{const a=new (window.AudioContext||window.webkitAudioContext)();[0,.25,.5].forEach(o=>{const s=a.createOscillator(),g=a.createGain();s.connect(g);g.connect(a.destination);s.frequency.value=o===.25?988:784;g.gain.setValueAtTime(.2,a.currentTime+o);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+o+.2);s.start(a.currentTime+o);s.stop(a.currentTime+o+.22)})}catch(e){}}
+function fmt(t){return when(t).toLocaleString([], {weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})}
+function render(){
+  const now=new Date(),today=ymd(now);
+  let arr=[...tasks].sort((a,b)=>when(a)-when(b));
+  if(filter==='today')arr=arr.filter(t=>t.date===today);
+  if(filter==='up')arr=arr.filter(t=>!t.done&&when(t)>now);
+  if(filter==='done')arr=arr.filter(t=>t.done);
+  $('list').innerHTML=arr.length?arr.map(t=>`<div class="item ${t.done?'done':''}" style="--c:${t.color}" data-id="${t.id}"><button class="chk" data-a="chk">${t.done?'✓':''}</button><div class="info"><div class="t">${esc(t.title)}</div><div class="m ${!t.done&&when(t)<now?'late':''}">⏰ ${fmt(t)}${!t.done&&when(t)<now?' · overdue':''}</div></div><button class="del" data-a="del" aria-label="Delete">🗑</button></div>`).join(''):'<div class="empty"><i>🗓️</i>Nothing here yet. Add a reminder!</div>';
+  const done=tasks.filter(t=>t.done).length,p=tasks.length?Math.round(done/tasks.length*100):0;
+  $('pct').textContent=p+'%';$('fg').style.strokeDashoffset=226-226*p/100;
+  $('pinfo').textContent=tasks.length?done+' of '+tasks.length+' completed':'No tasks yet';
+}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('add').onclick=()=>{
+  const title=$('title').value.trim(),d=$('d').value,tm=$('tm').value;
+  if(!title||!d||!tm){toast('Please fill title, date and time');return}
+  tasks.push({id:Date.now(),title,date:d,time:tm,color:$('cat').value,done:false,fired:false});
+  save();$('title').value='';render();toast('Reminder set ✓');
+  if('Notification' in window&&Notification.permission==='default'){try{Notification.requestPermission()}catch(e){}}
+};
+$('title').addEventListener('keydown',e=>{if(e.key==='Enter')$('add').click()});
+$('list').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const el=b.closest('.item'),id=+el.dataset.id;
+  if(b.dataset.a==='chk'){const t=tasks.find(x=>x.id===id);t.done=!t.done;save();render()}
+  if(b.dataset.a==='del'){el.classList.add('out');setTimeout(()=>{tasks=tasks.filter(x=>x.id!==id);save();render()},330)}
+};
+$('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;filter=b.dataset.f;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));render()};
+function fire(t){
+  ringing=t;t.fired=true;save();
+  $('mt').textContent=t.title;$('mm').textContent='Scheduled for '+fmt(t);
+  $('modal').classList.add('show');beep();
+  try{if('Notification' in window&&Notification.permission==='granted')new Notification('Reminder',{body:t.title})}catch(e){}
+}
+$('ok').onclick=()=>{if(ringing){ringing.done=true;save()}$('modal').classList.remove('show');ringing=null;render()};
+$('snz').onclick=()=>{
+  if(ringing){const n=new Date(Date.now()+5*60000);ringing.date=ymd(n);ringing.time=pad(n.getHours())+':'+pad(n.getMinutes());ringing.fired=false;save()}
+  $('modal').classList.remove('show');ringing=null;render();toast('Snoozed for 5 minutes')
+};
+function tick(){
+  const n=new Date();
+  $('time').textContent=pad(n.getHours()%12||12)+':'+pad(n.getMinutes())+':'+pad(n.getSeconds())+' '+(n.getHours()<12?'AM':'PM');
+  $('date').textContent=n.toLocaleDateString([], {weekday:'long',day:'numeric',month:'long'});
+  const h=n.getHours();$('greet').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', Zaid! Plan your day, never miss a thing.';
+  if(!ringing){const due=tasks.find(t=>!t.done&&!t.fired&&when(t)<=n&&n-when(t)<3600000);if(due){fire(due);render()}}
+  if(n.getSeconds()===0)render();
+}
+const now=new Date();$('d').value=ymd(now);$('tm').value=pad(now.getHours())+':'+pad((now.getMinutes()+1)%60);
+$('theme').onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dark?'light':'dark';$('theme').textContent=dark?'🌙':'☀️'};
+render();tick();setInterval(tick,1000);
+</script>
+</body>
+</html>
